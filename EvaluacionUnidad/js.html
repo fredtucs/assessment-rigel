@@ -1,0 +1,94 @@
+<script>
+  (function () {
+    'use strict';
+    const msgErrorLoadUnids = 'Wow! Ocurrió un error al intentar cargar la lista de Unidades.'
+    const msgErrorLoadAvent = 'Wow! Ocurrió un error al intentar cargar la lista de Aventureros.'
+    const msgErrorLoadEval = 'Wow! Ocurrió un error al intentar cargar las Criterios de Evaluación.'
+
+    const elem = document.querySelector('input[id="inputDate"]');
+    new Datepicker(elem, {
+      buttonClass: 'btn',
+      autohide: true,
+      todayButton: true,
+      todayButtonMode: 1,
+      todayHighlight: true,
+      language: 'es',
+      format: 'dd/mm/yyyy',
+      daysOfWeekHighlighted: [0, 6],
+      enableOnReadonly: true,
+      weekStart: 0
+    });
+
+    google.script.run
+      .withFailureHandler(msg => $.fn.runToast('error', msgErrorLoadUnids))
+      .withSuccessHandler(data => {
+        let options = '<option value="" disabled selected>Seleccione...</option>';
+        for (let unid of data) {
+          options += '<option value="' + unid[0] + '">' + unid[1] + '<\/option>';
+        }
+        document.querySelector('#inputUnidad').innerHTML = options;
+      }).loadDataUnidades();
+
+    $("#inputUnidad").on("change", function () {
+      const dataAventsEl = $('#dataAvents > tbody');
+      dataAventsEl.html(`<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Cargando...`);
+      google.script.run
+        .withFailureHandler(msg => $.fn.runToast('error', msgErrorLoadAvent))
+        .withSuccessHandler(data => {
+          dataAventsEl.html($.fn.addRows(data));
+        }).loadDataAvent(this.value);
+    });
+
+    var mainForm = document.getElementById("mainForm");
+    mainForm.addEventListener("submit", function (evt) {
+      if (!mainForm.checkValidity()) {
+        mainForm.classList.add('was-validated');
+      } else {
+        mainForm.classList.remove('was-validated');
+        $.fn.saveMainData(evt.target);
+      }
+      evt.preventDefault();
+    });
+
+    var evalForm = document.getElementById("evalForm");
+    evalForm.addEventListener("submit", function (evt) {
+      if (!evalForm.checkValidity()) {
+        evalForm.classList.add('was-validated');
+      } else {
+        evalForm.classList.remove('was-validated');
+        $.fn.saveAttenData(evt.target);
+      }
+      evt.preventDefault();
+    });
+
+    $(document).on("click", ".btn-modal", function () {
+      if (!mainForm.checkValidity()) {
+        mainForm.classList.add('was-validated');
+      } else {
+        mainForm.classList.remove('was-validated');
+        const evalPerson = $(this).attr("data-bs-person");
+        const evalBtnId = $(this).attr("id");
+        const attenModal = document.getElementById("attendanceModal");
+        const attenModalPopup = new bootstrap.Modal(attenModal, {});
+        const evalContent = attenModal.querySelector('.evalContent');
+        evalContent.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Cargando...`;
+
+        google.script.run
+          .withFailureHandler(msg => $.fn.runToast('error', msgErrorLoadEval))
+          .withSuccessHandler(data => {
+            evalContent.innerHTML = $.fn.addEvalBody(data);
+          }).loadDataEvaluacion();
+
+        const inputEvalPerson = attenModal.querySelector('#evalPerson');
+        inputEvalPerson.value = evalPerson;
+        const inputEvalBtnId = attenModal.querySelector('#evalBtnId');
+        inputEvalBtnId.value = evalBtnId;
+        const modalTitle = attenModal.querySelector('.modal-title');
+        modalTitle.textContent = evalPerson;
+        attenModalPopup.show();
+      }
+    });
+
+  })();
+
+</script>

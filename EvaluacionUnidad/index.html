@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <title>Asistencia de Unidad</title>
+  <meta charset="utf-8" />
+  <?!= include('css') ?>
+</head>
+
+<body class="container bg-theme">
+
+  <div class="d-flex justify-content-center flex-wrap flex-md-nowrap align-items-center gap-2 pt-4 pb-3">
+    <img src="https://raw.githubusercontent.com/fredtucs/attendance-rigel/master/img/logo-rigel.png" alt="network-logo"
+      height="72" />
+    <h2>Evaluación de Unidad</h2>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <form id="mainForm" novalidate autocomplete="off">
+        <div class="mb-3">
+          <label class="form-label">Unidades</label>
+          <select class="form-select" id="inputUnidad" name="unidad" required>
+            <option value="" disabled selected>Cargando...</option>
+          </select>
+          <div class="form-text invalid-feedback">Por favor seleccione su unidad</div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="inputDate">Fecha</label>
+          <div class="input-group has-validation">
+            <input type="text" class="form-control col-md-4" id="inputDate" name="fecha" inputmode="none" required />
+            <span class="input-group-text"><i class="ri-calendar-event-fill"></i></span>
+            <div class="form-text invalid-feedback">Seleccione la fecha actual</div>
+          </div>
+        </div>
+
+
+        <div class="table-responsive-sm mb-3">
+          <fieldset class="border rounded p-2">
+            <legend class="w-auto px-2">Evaluación</legend>
+            <table id="dataAvents" class="table table-hover">
+              <thead>
+                <tr>
+                  <th scope="col">Aventurero</th>
+                  <th scope="col" class="text-center">Eval.</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </fieldset>
+        </div>
+
+        <div class="mb-3">
+          <label for="textAreaRemark">Notas</label>
+          <textarea class="form-control" name="nota" id="textAreaNota" rows="2"
+            placeholder="Agregar alguna justificación u observación..."></textarea>
+        </div>
+
+        <button class="btn btn-primary btn-block col-lg-2 d-flex justify-content-center gap-1" type="submit">
+          <i class="ri-send-plane-2-fill ri-1x"></i> Finalizar
+        </button>
+
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    <div class="my-4 text-center">
+      <p>© IASD El Inti</p>
+    </div>
+  </footer>
+
+  <?!= include('attendance-modal') ?>
+  <?!= include('finalize-modal') ?>
+  <?!= include('toasts') ?>
+
+  <?!= include('js-vendor') ?>
+  <?!= include('js-functions') ?>
+  <?!= include('js') ?>
+</body>
+
+</html>

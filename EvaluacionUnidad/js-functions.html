@@ -1,0 +1,128 @@
+<script>
+  (function () {
+    'use strict';
+    const msgSuccessSave = 'Se guardó con éxito!';
+    const msgErrorSave = 'Wow! ocurrió un error al intentar guardar!';
+    $.fn.loaderShow = function (elementParent) {
+      $.fn.loaderRemove();
+      let loader = document.createElement('div');
+      loader.id = 'loader';
+      loader.classList.add('loading')
+      let loaderChild = document.createElement('div');
+      loaderChild.classList.add('loader')
+      loader.appendChild(loaderChild);
+      document.getElementById(elementParent).appendChild(loader);
+    };
+
+    $.fn.loaderRemove = function () {
+      const loaderElement = document.getElementById('loader');
+      if (loaderElement) loaderElement.remove();
+    };
+
+    $.fn.saveMainData = function (form) {
+      const unidValue = $("#inputUnidad option:selected").text();
+      const mainFormData = new FormData(form);
+      mainFormData.set('unidad', unidValue);
+      google.script.run
+        .withFailureHandler(msg => $.fn.runToast('error', msgErrorSave))
+        .withSuccessHandler(() => {
+          form.reset();
+          const finalizeModal = document.getElementById("finalizeModal");
+          const finalizeModalPopup = new bootstrap.Modal(finalizeModal, {});
+          finalizeModalPopup.show();
+        }).saveMainData(Object.fromEntries(mainFormData));
+
+    };
+
+    $.fn.saveAttenData = function (form) {
+      const btnEvalSave = form.querySelector('#btnEvalSave');
+      const btnEvalSaveText = btnEvalSave.innerHTML;
+      btnEvalSave.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...`;
+      btnEvalSave.disabled = true;
+
+      const unidValue = $("#inputUnidad option:selected").text();
+      const dateValue = $('#inputDate').val();
+      const evalFormData = new FormData(form);
+      evalFormData.set('unidad', unidValue);
+      evalFormData.set('fecha', dateValue);
+      google.script.run
+        .withFailureHandler(msg => {
+          $.fn.runToast('error', msgErrorSave);
+          btnEvalSave.innerHTML = btnEvalSaveText;
+        })
+        .withSuccessHandler(() => {
+          $.fn.runToast('success', msgSuccessSave);
+          bootstrap.Modal.getOrCreateInstance('#attendanceModal').hide();
+          form.reset();
+          const evalBtnId = document.getElementById(evalFormData.get('evalBtnId'));
+          if (evalBtnId) {
+            evalBtnId.classList.replace('btn-primary', 'btn-secondary');
+          }
+          btnEvalSave.innerHTML = btnEvalSaveText;
+          btnEvalSave.disabled = false;
+        }).saveAttendanceData(Object.fromEntries(evalFormData));
+
+    };
+
+    $.fn.runToast = function (type, message) {
+      let toastType = '';
+      switch (type) {
+        case 'success':
+          toastType = 'toastSuccess';
+          break;
+        case 'warn':
+          toastType = 'toastWarn';
+          break;
+        case 'error':
+          toastType = 'toastError';
+          break;
+        default:
+          toastType = 'toastInfo';
+      }
+      const toastElement = document.getElementById(toastType);
+      const toast = new bootstrap.Toast(toastElement);
+      const toastBody = toastElement.querySelector('.toast-body');
+      toastBody.innerHTML = message;
+      toast.show();
+    };
+
+    $.fn.addRows = function (data) {
+      var row = '';
+      var i = 0;
+      for (let av of data) {
+        row += '<tr>';
+        row += `<td>${av[0]}</td>`;
+        row += `<td class="text-center">
+                  <button type="button" id="btnPerson${i}" class="btn btn-primary btn-sm btn-modal" data-bs-person="${av[0]}">
+                    <i class="ri-checkbox-multiple-fill"></i></button>
+                </td>`;
+        row += '</tr>';
+        i++;
+      }
+      return row ? row : '<tr><td colspan="2">No se encontró registros!</td></tr>';
+    };
+
+    $.fn.addEvalBody = function (data) {
+      var html = '';
+      for (const evData of data) {
+        let type = evData[0];
+        html += `
+            <div class="form-group mb-3">
+              <legend class="col-form-label pt-0 fw-semibold" style="padding: 0">${type}:</legend>
+            `;
+        for (let k = 1; k < evData.length; k++) {
+          html += `
+              <div class="form-check form-check-inline">
+                <input type="radio" class="form-check-input" id="rb${type + k}" name="eval${type}" value="${evData[k]}" required />
+                <label class="form-check-label" style="font-weight: normal" for="rb${type + k}">${evData[k]}</label>
+              </div>
+            `;
+        }
+        html += '</div>'
+      }
+      return html;
+    };
+
+  })();
+
+</script>
