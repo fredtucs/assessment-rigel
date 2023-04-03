@@ -18,9 +18,12 @@ function loadDataUnidades() {
 }
 
 function loadDataAvent(numCol = 1) {
+  const horValid = this.horarioClases();
   const ss = SpreadsheetApp.openById(scriptProp.getProperty('key')).getSheetByName("DATOS");
   let coldata = ss.getRange(2, numCol, ss.getLastRow(), 1).getDisplayValues();
-  return coldata.filter(el => el != '')
+  coldata = coldata.filter(el => el != '')
+  coldata.map((elem, index) => { elem.push(horValid); return elem; })  
+  return coldata;  
 }
 
 function getIndexUnidad(nameUnid) {
@@ -44,7 +47,6 @@ function saveMainData(formData) {
 function saveAttendanceData(formData) {
   const doc = SpreadsheetApp.openById(scriptProp.getProperty('key'));
   const sheet = doc.getSheetByName(formData.clase);
-  Logger.log(formData);
   sheet.appendRow([
     formData.fecha,
     formData.evalPerson,
@@ -57,4 +59,12 @@ function saveAttendanceData(formData) {
   ]);
 }
 
-
+function horarioClases() {
+  var today = new Date();
+  var weekday = today.getDay();
+  var hourOpen = new Date();
+  hourOpen.setHours(10, 0, 0);
+  var hourClose = new Date();
+  hourClose.setHours(11, 0, 0);
+  return (weekday == 0) && (today >= hourOpen && today < hourClose);
+}

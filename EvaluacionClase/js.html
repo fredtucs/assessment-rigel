@@ -1,9 +1,10 @@
 <script>
   (function () {
     'use strict';
-    const msgErrorLoadUnids = 'Wow! Ocurrió un error al intentar cargar la lista de Unidades.'
+    const msgErrorLoadClass = 'Wow! Ocurrió un error al intentar cargar la lista de Clases.'
     const msgErrorLoadAvent = 'Wow! Ocurrió un error al intentar cargar la lista de Aventureros.'
     const msgErrorLoadEval = 'Wow! Ocurrió un error al intentar cargar las Criterios de Evaluación.'
+    const msgWarnEval = 'Apreciado Instructor(a), recuerde que el control de Asistencia solo podemos realizar en el horario de Clases.'
 
     const elem = document.querySelector('input[id="inputDate"]');
     new Datepicker(elem, {
@@ -20,7 +21,7 @@
     });
 
     google.script.run
-      .withFailureHandler(msg => $.fn.runToast('error', msgErrorLoadUnids))
+      .withFailureHandler(msg => $.fn.runToast('error', msgErrorLoadClass))
       .withSuccessHandler(data => {
         let options = '<option value="" disabled selected>Seleccione...</option>';
         for (let unid of data) {
@@ -28,6 +29,13 @@
         }
         document.querySelector('#inputClase').innerHTML = options;
       }).loadDataUnidades();
+
+    google.script.run
+      .withFailureHandler(msg => $.fn.runToast('error', msg))
+      .withSuccessHandler(data => {
+        document.querySelector('#btnFinalizar').disabled = !data;
+        $.fn.runToast('warn', msgWarnEval)
+      }).horarioClases();
 
     $("#inputClase").on("change", function () {
       const dataAventsEl = $('#dataAvents > tbody');

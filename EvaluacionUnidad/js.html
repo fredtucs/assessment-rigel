@@ -4,6 +4,7 @@
     const msgErrorLoadUnids = 'Wow! Ocurrió un error al intentar cargar la lista de Unidades.'
     const msgErrorLoadAvent = 'Wow! Ocurrió un error al intentar cargar la lista de Aventureros.'
     const msgErrorLoadEval = 'Wow! Ocurrió un error al intentar cargar las Criterios de Evaluación.'
+    const msgWarnEval = 'Apreciado Consejero(a), recuerde que el control de Asistencia solo podemos realizar en el horario de Rincon de Unidades.'
 
     const elem = document.querySelector('input[id="inputDate"]');
     new Datepicker(elem, {
@@ -28,6 +29,13 @@
         }
         document.querySelector('#inputUnidad').innerHTML = options;
       }).loadDataUnidades();
+
+    google.script.run
+      .withFailureHandler(msg => $.fn.runToast('error', msg))
+      .withSuccessHandler(data => {        
+        document.querySelector('#btnFinalizar').disabled = !data;
+        $.fn.runToast('warn', msgWarnEval)
+      }).horarioRinconUnidades();
 
     $("#inputUnidad").on("change", function () {
       const dataAventsEl = $('#dataAvents > tbody');

@@ -93,7 +93,7 @@
         row += '<tr>';
         row += `<td>${av[0]}</td>`;
         row += `<td class="text-center">
-                  <button type="button" id="btnPerson${i}" class="btn btn-primary btn-sm btn-modal" data-bs-person="${av[0]}">
+                  <button type="button" id="btnPerson${i}" ${!av[1] ? 'disabled' : ''} class="btn btn-primary btn-sm btn-modal" data-bs-person="${av[0]}">
                     <i class="ri-checkbox-multiple-fill"></i></button>
                 </td>`;
         row += '</tr>';
