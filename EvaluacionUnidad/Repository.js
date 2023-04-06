@@ -1,10 +1,17 @@
-var scriptProp = PropertiesService.getScriptProperties();
+let scriptProp = PropertiesService.getScriptProperties();
 
 function loadDataEvaluacion() {
   const ss = SpreadsheetApp.openById(scriptProp.getProperty('key'));
-  let data = ss.getRangeByName('EvalUnidad').getValues();
-  data = data.map(el => el.filter(ex => ex != ''));
-  return data;
+  const data = ss.getRangeByName('EvalUnidad').getValues();
+  const result = data.map(arr => {
+    const [title, ...items] = arr.filter(Boolean);
+    const [criteItems, valueItems] = items.reduce(([criteAcc, valueAcc], item) => {
+      isNaN(item) ? criteAcc.push(item) : valueAcc.push(item);
+      return [criteAcc, valueAcc];
+    }, [[], []]);
+    return [title, criteItems, valueItems];
+  });
+  return result;
 }
 
 function loadData(nameData) {
@@ -22,7 +29,7 @@ function loadDataAvent(numCol = 1) {
   const ss = SpreadsheetApp.openById(scriptProp.getProperty('key')).getSheetByName("DATOS");
   let coldata = ss.getRange(2, numCol, ss.getLastRow(), 1).getDisplayValues();
   coldata = coldata.filter(el => el != '')
-  coldata.map((elem, index) => { elem.push(horValid); return elem; })  
+  coldata.map((elem, index) => { elem.push(horValid); return elem; })
   return coldata;
 }
 
@@ -45,20 +52,20 @@ function saveMainData(formData) {
 }
 
 function saveAttendanceData(formData) {
-  const doc = SpreadsheetApp.openById(scriptProp.getProperty('key'));
-  const sheet = doc.getSheetByName(formData.unidad);  
-  sheet.appendRow([
-    formData.fecha,
-    formData.evalPerson,
-    formData.evalAsistencia,
-    formData.evalUniforme,
-    formData.evalHigiene,
-    formData.evalMateriales,
-    formData.evalDisciplina,
-    formData.evalResponsabilidad,
-    formData.evalParticipacion,
-    new Date()
-  ]);
+  // const doc = SpreadsheetApp.openById(scriptProp.getProperty('key'));
+  // const sheet = doc.getSheetByName(formData.unidad);  
+  // sheet.appendRow([
+  //   formData.fecha,
+  //   formData.evalPerson,
+  //   formData.evalAsistencia,
+  //   formData.evalUniforme,
+  //   formData.evalHigiene,
+  //   formData.evalMateriales,
+  //   formData.evalDisciplina,
+  //   formData.evalResponsabilidad,
+  //   formData.evalParticipacion,
+  //   new Date()
+  // ]);
 }
 
 function horarioRinconUnidades() {
@@ -68,5 +75,5 @@ function horarioRinconUnidades() {
   hourOpen.setHours(9, 20, 0);
   var hourClose = new Date();
   hourClose.setHours(10, 10, 0);
-  return (weekday == 0) && (today >= hourOpen && today < hourClose);  
+  return true; //(weekday == 0) && (today >= hourOpen && today < hourClose);  
 }

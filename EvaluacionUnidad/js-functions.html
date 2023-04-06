@@ -37,34 +37,35 @@
     $.fn.saveAttenData = function (form) {
       const btnEvalSave = form.querySelector('#btnEvalSave');
       const btnEvalSaveText = btnEvalSave.innerHTML;
-      btnEvalSave.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...`;
-      btnEvalSave.disabled = true;
+      // btnEvalSave.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...`;
+      // btnEvalSave.disabled = true;
 
       const unidValue = $("#inputUnidad option:selected").text();
       const dateValue = $('#inputDate').val();
       const evalFormData = new FormData(form);
       evalFormData.set('unidad', unidValue);
       evalFormData.set('fecha', dateValue);
-      google.script.run
-        .withFailureHandler(msg => {
-          $.fn.runToast('error', msgErrorSave);
-          btnEvalSave.innerHTML = btnEvalSaveText;
-        })
-        .withSuccessHandler(() => {
-          $.fn.runToast('success', msgSuccessSave);
-          bootstrap.Modal.getOrCreateInstance('#attendanceModal').hide();
-          form.reset();
-          const evalBtnId = document.getElementById(evalFormData.get('evalBtnId'));
-          if (evalBtnId) {
-            evalBtnId.classList.replace('btn-primary', 'btn-secondary');
-          }
-          btnEvalSave.innerHTML = btnEvalSaveText;
-          btnEvalSave.disabled = false;
-        }).saveAttendanceData(Object.fromEntries(evalFormData));
+      console.log(Object.fromEntries(evalFormData));
+      // google.script.run
+      //   .withFailureHandler(msg => {
+      //     $.fn.runToast('error', msgErrorSave);
+      //     btnEvalSave.innerHTML = btnEvalSaveText;
+      //   })
+      //   .withSuccessHandler(() => {
+      //     $.fn.runToast('success', msgSuccessSave);
+      //     bootstrap.Modal.getOrCreateInstance('#attendanceModal').hide();
+      //     form.reset();
+      //     const evalBtnId = document.getElementById(evalFormData.get('evalBtnId'));
+      //     if (evalBtnId) {
+      //       evalBtnId.classList.replace('btn-primary', 'btn-secondary');
+      //     }
+      //     btnEvalSave.innerHTML = btnEvalSaveText;
+      //     btnEvalSave.disabled = false;
+      //   }).saveAttendanceData(Object.fromEntries(evalFormData));
 
     };
 
-    $.fn.runToast = function (type, message) {
+    $.fn.runToast = (type, message) => {
       let toastType = '';
       switch (type) {
         case 'success':
@@ -86,7 +87,7 @@
       toast.show();
     };
 
-    $.fn.addRows = function (data) {
+    $.fn.addRows = (data) => {
       var row = '';
       var i = 0;
       for (let av of data) {
@@ -102,27 +103,57 @@
       return row ? row : '<tr><td colspan="2">No se encontró registros!</td></tr>';
     };
 
-    $.fn.addEvalBody = function (data) {
+    $.fn.addEvalBody = (data) => {
       var html = '';
+      let count = 0;
+
       for (const evData of data) {
         let type = evData[0];
+        let evalCrit = evData[1];
+        let evalValue = evData[2];
         html += `
             <div class="form-group mb-3">
               <legend class="col-form-label pt-0 fw-semibold" style="padding: 0">${type}:</legend>
             `;
-        for (let k = 1; k < evData.length; k++) {
+        for (let k = 0; k < evalCrit.length; k++) {
           html += `
               <div class="form-check form-check-inline">
-                <input type="radio" class="form-check-input" id="rb${type + k}" name="eval${type}" value="${evData[k]}" required />
-                <label class="form-check-label" style="font-weight: normal" for="rb${type + k}">${evData[k]}</label>
+                <input type="radio" class="form-check-input" id="rb${type + count + k}" name="eval${type}" value="${evalValue[k]}" required />
+                <label class="form-check-label" style="font-weight: normal" for="rb${type + count + k}">${evalCrit[k]}</label>
               </div>
             `;
+          if (evalValue[k].match(/(0|-1)/) && count == 0) {
+            $(document).on("click", `#rb${type + count + k}`, () => {
+              $.fn.disableCriteriaEval(true, true);
+            });
+          } else if (count == 0) {
+            $(document).on("click", `#rb${type + count + k}`, () => {
+              $.fn.disableCriteriaEval();
+            });
+          }
+
         }
         html += '</div>'
+        count++;
       }
       return html;
     };
 
+    $.fn.disableCriteriaEval = (disabledCrit = false, valueInput = false) => {
+      $('input').filter((idx, elem) => elem.id.match(/^rb.*[1-9]\d$/)).each((i, item) => {
+        item.disabled = disabledCrit;
+        if (i % 2 === 1 && valueInput) {
+          item.checked = disabledCrit          
+          if ($('#hd' + item.id).length === 0) {
+            $('<input/>', { id: 'hd' + item.id, type: 'hidden', name: item.name, value: 0 }).appendTo('#evalForm');
+          }
+        } else {
+          $('#hd' + item.id).remove();
+        }
+      });
+    }
   })();
+
+
 
 </script>

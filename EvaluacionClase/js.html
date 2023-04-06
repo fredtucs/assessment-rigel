@@ -34,7 +34,9 @@
       .withFailureHandler(msg => $.fn.runToast('error', msg))
       .withSuccessHandler(data => {
         document.querySelector('#btnFinalizar').disabled = !data;
-        $.fn.runToast('warn', msgWarnEval)
+        if (!data) {
+          $.fn.runToast('warn', msgWarnEval)
+        }        
       }).horarioClases();
 
     $("#inputClase").on("change", function () {

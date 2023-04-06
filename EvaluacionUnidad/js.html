@@ -32,9 +32,13 @@
 
     google.script.run
       .withFailureHandler(msg => $.fn.runToast('error', msg))
-      .withSuccessHandler(data => {        
+      .withSuccessHandler(data => {
+        console.log('Valor: %s', data);
         document.querySelector('#btnFinalizar').disabled = !data;
-        $.fn.runToast('warn', msgWarnEval)
+        if (!data) {
+          $.fn.runToast('warn', msgWarnEval)
+        }
+
       }).horarioRinconUnidades();
 
     $("#inputUnidad").on("change", function () {
