@@ -64,7 +64,7 @@
 
     };
 
-    $.fn.runToast = function (type, message) {
+    $.fn.runToast = (type, message) => {
       let toastType = '';
       switch (type) {
         case 'success':
@@ -86,7 +86,7 @@
       toast.show();
     };
 
-    $.fn.addRows = function (data) {
+    $.fn.addRows = (data) => {
       var row = '';
       var i = 0;
       for (let av of data) {
@@ -102,25 +102,73 @@
       return row ? row : '<tr><td colspan="2">No se encontró registros!</td></tr>';
     };
 
-    $.fn.addEvalBody = function (data) {
+    $.fn.addEvalBody = (data) => {
       var html = '';
+      let count = 0;
+
       for (const evData of data) {
         let type = evData[0];
+        let evalCrit = evData[1];
+        let evalValue = evData[2];
         html += `
             <div class="form-group mb-3">
               <legend class="col-form-label pt-0 fw-semibold" style="padding: 0">${type}:</legend>
             `;
-        for (let k = 1; k < evData.length; k++) {
+        for (let k = 0; k < evalCrit.length; k++) {
           html += `
               <div class="form-check form-check-inline">
-                <input type="radio" class="form-check-input" id="rb${type + k}" name="eval${type}" value="${evData[k]}" required />
-                <label class="form-check-label" style="font-weight: normal" for="rb${type + k}">${evData[k]}</label>
+                <input type="radio" class="form-check-input" id="rb${type + count + k}" name="eval${type}" value="${evalValue[k]}" required />
+                <label class="form-check-label" style="font-weight: normal" for="rb${type + count + k}">${evalCrit[k]}</label>
               </div>
             `;
+          if (evalValue[k] == 0 && count == 0) {
+            $(document).on("click", `#rb${type + count + k}`, () => {
+              $.fn.disableCriteriaEval(true, true);
+            });
+          } else if (evalValue[k] == -1 && count == 0) {
+            $(document).on("click", `#rb${type + count + k}`, () => {
+              $.fn.disableCriteriaEval(true, false);
+            });
+          } else if (count == 0) {
+            $(document).on("click", `#rb${type + count + k}`, () => {
+              $.fn.disableCriteriaEval();
+            });
+          }
+
         }
         html += '</div>'
+        count++;
       }
       return html;
+    };
+
+    $.fn.disableCriteriaEval = (disabledCrit = false, valueInput = false) => {
+      $('input')
+        .filter((idx, elem) => /^rb.*[1-9]\d$/.test(elem.id))
+        .each((index, item) => {
+          item.disabled = disabledCrit;
+          item.checked = disabledCrit
+          let nonValue = index % 2 === 1;
+          let elemHidden = nonValue ? $(`#hd${item.id}`) : [];
+          if (nonValue && !elemHidden.length && disabledCrit) {
+            $('<input/>', { id: `hd${item.id}`, type: 'hidden', name: item.name, value: 0 }).appendTo('#evalContent');
+          } else if (elemHidden.length && !disabledCrit) {
+            elemHidden.remove();
+          }
+        });
+
+      const idJust = 'divJustInasistencia';
+      let elemJust = $(`#${idJust}`);
+      if (valueInput && !elemJust.length) {
+        const input = $('<input>', { type: 'text', name: 'justInasistencia', class: 'form-control', required: true, placeholder: 'Ingresa motivo de inasistencia' });
+        const div = $('<div>', { class: 'form-group mb-3', id: idJust });
+        div.append(input);
+        div.appendTo('#evalContent');
+      } else if (valueInput && elemJust.length) {
+        elemJust.appendTo('#evalContent')
+      } else if (elemJust.length) {
+        elemJust.remove();
+      }
     };
 
   })();
