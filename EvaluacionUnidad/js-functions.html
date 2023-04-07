@@ -37,31 +37,30 @@
     $.fn.saveAttenData = function (form) {
       const btnEvalSave = form.querySelector('#btnEvalSave');
       const btnEvalSaveText = btnEvalSave.innerHTML;
-      // btnEvalSave.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...`;
-      // btnEvalSave.disabled = true;
+      btnEvalSave.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...`;
+      btnEvalSave.disabled = true;
 
       const unidValue = $("#inputUnidad option:selected").text();
       const dateValue = $('#inputDate').val();
       const evalFormData = new FormData(form);
       evalFormData.set('unidad', unidValue);
-      evalFormData.set('fecha', dateValue);
-      console.log(Object.fromEntries(evalFormData));
-      // google.script.run
-      //   .withFailureHandler(msg => {
-      //     $.fn.runToast('error', msgErrorSave);
-      //     btnEvalSave.innerHTML = btnEvalSaveText;
-      //   })
-      //   .withSuccessHandler(() => {
-      //     $.fn.runToast('success', msgSuccessSave);
-      //     bootstrap.Modal.getOrCreateInstance('#attendanceModal').hide();
-      //     form.reset();
-      //     const evalBtnId = document.getElementById(evalFormData.get('evalBtnId'));
-      //     if (evalBtnId) {
-      //       evalBtnId.classList.replace('btn-primary', 'btn-secondary');
-      //     }
-      //     btnEvalSave.innerHTML = btnEvalSaveText;
-      //     btnEvalSave.disabled = false;
-      //   }).saveAttendanceData(Object.fromEntries(evalFormData));
+      evalFormData.set('fecha', dateValue);      
+      google.script.run
+        .withFailureHandler(msg => {
+          $.fn.runToast('error', msgErrorSave);
+          btnEvalSave.innerHTML = btnEvalSaveText;
+        })
+        .withSuccessHandler(() => {
+          $.fn.runToast('success', msgSuccessSave);
+          bootstrap.Modal.getOrCreateInstance('#attendanceModal').hide();
+          form.reset();
+          const evalBtnId = document.getElementById(evalFormData.get('evalBtnId'));
+          if (evalBtnId) {
+            evalBtnId.classList.replace('btn-primary', 'btn-secondary');
+          }
+          btnEvalSave.innerHTML = btnEvalSaveText;
+          btnEvalSave.disabled = false;
+        }).saveAttendanceData(Object.fromEntries(evalFormData));
 
     };
 
@@ -122,9 +121,13 @@
                 <label class="form-check-label" style="font-weight: normal" for="rb${type + count + k}">${evalCrit[k]}</label>
               </div>
             `;
-          if (evalValue[k].match(/(0|-1)/) && count == 0) {
+          if (evalValue[k] == 0 && count == 0) {
             $(document).on("click", `#rb${type + count + k}`, () => {
               $.fn.disableCriteriaEval(true, true);
+            });
+          } else if (evalValue[k] == -1 && count == 0) {
+            $(document).on("click", `#rb${type + count + k}`, () => {
+              $.fn.disableCriteriaEval(true, false);
             });
           } else if (count == 0) {
             $(document).on("click", `#rb${type + count + k}`, () => {
@@ -140,18 +143,34 @@
     };
 
     $.fn.disableCriteriaEval = (disabledCrit = false, valueInput = false) => {
-      $('input').filter((idx, elem) => elem.id.match(/^rb.*[1-9]\d$/)).each((i, item) => {
-        item.disabled = disabledCrit;
-        if (i % 2 === 1 && valueInput) {
-          item.checked = disabledCrit          
-          if ($('#hd' + item.id).length === 0) {
-            $('<input/>', { id: 'hd' + item.id, type: 'hidden', name: item.name, value: 0 }).appendTo('#evalForm');
+      $('input')
+        .filter((idx, elem) => /^rb.*[1-9]\d$/.test(elem.id))
+        .each((index, item) => {
+          item.disabled = disabledCrit;
+          item.checked = disabledCrit
+          let nonValue = index % 2 === 1;
+          let elemHidden = nonValue ? $(`#hd${item.id}`) : [];
+          if (nonValue && !elemHidden.length && disabledCrit) {
+            $('<input/>', { id: `hd${item.id}`, type: 'hidden', name: item.name, value: 0 }).appendTo('#evalContent');
+          } else if (elemHidden.length && !disabledCrit) {
+            elemHidden.remove();
           }
-        } else {
-          $('#hd' + item.id).remove();
-        }
-      });
-    }
+        });
+
+      const idJust = 'divJustInasistencia';
+      let elemJust = $(`#${idJust}`);
+      if (valueInput && !elemJust.length) {
+        const input = $('<input>', { type: 'text', name: 'justInasistencia', class: 'form-control', required: true, placeholder: 'Ingresa motivo de inasistencia' });
+        const div = $('<div>', { class: 'form-group mb-3', id: idJust });
+        div.append(input);
+        div.appendTo('#evalContent');
+      } else if (valueInput && elemJust.length) {
+        elemJust.appendTo('#evalContent')
+      } else if (elemJust.length) {
+        elemJust.remove();
+      }
+    };
+
   })();
 
 

@@ -52,28 +52,31 @@ function saveMainData(formData) {
 }
 
 function saveAttendanceData(formData) {
-  // const doc = SpreadsheetApp.openById(scriptProp.getProperty('key'));
-  // const sheet = doc.getSheetByName(formData.unidad);  
-  // sheet.appendRow([
-  //   formData.fecha,
-  //   formData.evalPerson,
-  //   formData.evalAsistencia,
-  //   formData.evalUniforme,
-  //   formData.evalHigiene,
-  //   formData.evalMateriales,
-  //   formData.evalDisciplina,
-  //   formData.evalResponsabilidad,
-  //   formData.evalParticipacion,
-  //   new Date()
-  // ]);
+  const justInasistencia = formData.justInasistencia ? formData.justInasistencia : '';
+  const doc = SpreadsheetApp.openById(scriptProp.getProperty('key'));
+  const sheet = doc.getSheetByName(formData.unidad);
+  const now = new Date();  
+  sheet.appendRow([
+    formData.fecha,
+    formData.evalPerson,
+    formData.evalAsistencia,
+    formData.evalUniforme,
+    formData.evalHigiene,
+    formData.evalMateriales,
+    formData.evalDisciplina,
+    formData.evalResponsabilidad,
+    formData.evalParticipacion,
+    justInasistencia,
+    now
+  ]);
 }
 
 function horarioRinconUnidades() {
-  var today = new Date();
-  var weekday = today.getDay();
-  var hourOpen = new Date();
+  let today = new Date();
+  let weekday = today.getDay();
+  let hourOpen = new Date();
   hourOpen.setHours(9, 20, 0);
-  var hourClose = new Date();
+  let hourClose = new Date();
   hourClose.setHours(10, 10, 0);
-  return true; //(weekday == 0) && (today >= hourOpen && today < hourClose);  
+  return (weekday == 0) && (today >= hourOpen && today < hourClose);  
 }
