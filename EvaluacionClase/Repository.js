@@ -76,5 +76,5 @@ function horarioClases() {
   hourOpen.setHours(10, 0, 0);
   let hourClose = new Date();
   hourClose.setHours(11, 0, 0);
-  return true//(weekday == 0) && (today >= hourOpen && today < hourClose);
+  return (weekday == 0) && (today >= hourOpen && today < hourClose);
 }
