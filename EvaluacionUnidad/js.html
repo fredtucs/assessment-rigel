@@ -32,7 +32,7 @@
 
     google.script.run
       .withFailureHandler(msg => $.fn.runToast('error', msg))
-      .withSuccessHandler(data => {        
+      .withSuccessHandler(data => {
         document.querySelector('#btnFinalizar').disabled = !data;
         if (!data) {
           $.fn.runToast('warn', msgWarnEval)
