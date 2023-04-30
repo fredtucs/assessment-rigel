@@ -72,11 +72,13 @@ function saveAttendanceData(formData) {
 }
 
 function horarioRinconUnidades() {
+  const ss = SpreadsheetApp.openById(scriptProp.getProperty('key'));
+  const data = ss.getRangeByName('EvalStatus').getValues();  
   let today = new Date();
   let weekday = today.getDay();
   let hourOpen = new Date();
   hourOpen.setHours(9, 20, 0);
   let hourClose = new Date();
   hourClose.setHours(10, 10, 0);
-  return (weekday == 0) && (today >= hourOpen && today < hourClose);  
+  return ((weekday == 0) && (today >= hourOpen && today < hourClose)) || data.flat().includes(1);  
 }
