@@ -70,11 +70,13 @@ function saveAttendanceData(formData) {
 }
 
 function horarioClases() {
+  const ss = SpreadsheetApp.openById(scriptProp.getProperty('key'));
+  const data = ss.getRangeByName('EvalStatus').getValues();  
   let today = new Date();
   let weekday = today.getDay();
   let hourOpen = new Date();
   hourOpen.setHours(10, 0, 0);
   let hourClose = new Date();
   hourClose.setHours(11, 0, 0);
-  return (weekday == 0) && (today >= hourOpen && today < hourClose);
+  return ((weekday == 0) && (today >= hourOpen && today < hourClose)) || data.flat().includes(1);
 }
