@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <title>Reporte de Evaluación</title>
+  <meta charset="utf-8" />
+  <?!= include('css') ?>
+</head>
+
+<body class="container bg-theme">
+
+  <div class="d-flex justify-content-center flex-wrap flex-md-nowrap align-items-center gap-2 pt-4 pb-3">
+    <img src="https://cdn.statically.io/gh/fredtucs/assessment-rigel/master/images/logo-rigel.png" alt="network-logo"
+      height="72" />
+    <h2>Reporte de Evaluación</h2>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <form id="mainForm" novalidate autocomplete="off">
+        <div class="mb-3">
+          <label class="form-label">Tipo Evaluación</label>
+          <select class="form-select" id="inputTipo" name="tipo" required>
+            <option value="" disabled selected>Seleccione...</option>
+            <option value="0">Unidad</option>
+            <option value="1">Clase</option>
+            <option value="2">Total (Clase)</option>
+          </select>
+          <div class="form-text invalid-feedback">Por favor seleccione el Tipo</div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Unidad/Clase</label>
+          <select class="form-select" id="inputUnidad" name="unidad" required>
+            <option value="" disabled selected>Cargando...</option>
+          </select>
+          <div class="form-text invalid-feedback">Por favor seleccione su unidad</div>
+        </div>
+
+        <div class="table-responsive-sm mb-3">
+          <fieldset class="border rounded p-2">
+            <legend class="w-auto px-2">Evaluación</legend>
+            <table id="dataAvents" class="table table-hover">
+              <thead>
+                <tr>
+                  <th scope="col">Aventurero</th>
+                  <th scope="col" class="text-center">Puntaje</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </fieldset>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    <div class="my-4 text-center">
+      <p>© IASD El Inti</p>
+    </div>
+  </footer>
+
+  <?!= include('js-vendor') ?>
+  <?!= include('js-functions') ?>
+  <?!= include('js') ?>
+</body>
+
+</html>

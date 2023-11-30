@@ -1,0 +1,62 @@
+<script>
+  (function () {
+    'use strict';
+    const msgSuccessSave = 'Se guardó con éxito!';
+    const msgErrorSave = 'Wow! ocurrió un error al intentar guardar!';
+    $.fn.loaderShow = function (elementParent) {
+      $.fn.loaderRemove();
+      let loader = document.createElement('div');
+      loader.id = 'loader';
+      loader.classList.add('loading')
+      let loaderChild = document.createElement('div');
+      loaderChild.classList.add('loader')
+      loader.appendChild(loaderChild);
+      document.getElementById(elementParent).appendChild(loader);
+    };
+
+    $.fn.loaderRemove = function () {
+      const loaderElement = document.getElementById('loader');
+      if (loaderElement) loaderElement.remove();
+    };
+
+    $.fn.runToast = (type, message) => {
+      let toastType = '';
+      switch (type) {
+        case 'success':
+          toastType = 'toastSuccess';
+          break;
+        case 'warn':
+          toastType = 'toastWarn';
+          break;
+        case 'error':
+          toastType = 'toastError';
+          break;
+        default:
+          toastType = 'toastInfo';
+      }
+      const toastElement = document.getElementById(toastType);
+      const toast = new bootstrap.Toast(toastElement);
+      const toastBody = toastElement.querySelector('.toast-body');
+      toastBody.innerHTML = message;
+      toast.show();
+    };
+
+    $.fn.addRows = (data) => {
+      const dataEval = JSON.parse(data);
+      var row = '';
+      var i = 0;
+      for (let av of dataEval) {
+        row += '<tr>';
+        row += `<td>${av[0]}</td>`;
+        row += `<td class="text-center">${av[1]}</td>`;
+        row += '</tr>';
+        i++;
+      }
+      return row ? row : '<tr><td colspan="2">No se encontró registros!</td></tr>';
+    };
+
+  })();
+
+
+
+</script>

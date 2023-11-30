@@ -1,0 +1,38 @@
+<script>
+  (function () {
+    'use strict';
+    const msgErrorLoadUnids = 'Wow! Ocurrió un error al intentar cargar la lista de Unidades.'
+    const msgErrorLoadAvent = 'Wow! Ocurrió un error al intentar cargar la lista de Aventureros.'
+    let tipo = 0;
+    $("#inputUnidad").on("change", function () {
+      console.log(tipo);
+      const dataAventsEl = $('#dataAvents > tbody');
+      dataAventsEl.html(`<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Cargando...`);
+      google.script.run
+        .withFailureHandler(msg => $.fn.runToast('error', msgErrorLoadAvent))
+        .withSuccessHandler(data => {
+          dataAventsEl.html($.fn.addRows(data));
+        }).loadEvalUnidadClase(this.value, tipo);
+    });
+
+    $("#inputTipo").on("change", function () {
+      tipo = this.value;
+      const cpUnidaClase = document.querySelector('#inputUnidad')
+      const dataAventsEl = $('#dataAvents > tbody');
+      let options = '<option value="" disabled selected>Cargando...</option>';
+      dataAventsEl.html(`<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Cargando...`);
+      cpUnidaClase.innerHTML = options;
+      google.script.run
+        .withFailureHandler(msg => $.fn.runToast('error', msgErrorLoadUnids))
+        .withSuccessHandler(data => {
+          options = '<option value="" disabled selected>Seleccione...</option>';
+          for (let unid of data) {
+            options += '<option value="' + unid[1] + '">' + unid[1] + '</option>';
+          }
+          cpUnidaClase.innerHTML = options;
+        }).loadDataUnidadClase(tipo);
+    });
+
+  })();
+
+</script>
